@@ -39,7 +39,7 @@ namespace Musix4u_API.Controllers
         [HttpPost]
         public async Task<ActionResult<List<Track>>> Create([FromForm] CreateTrackRequest request)
         {
-            var file = TagLib.File.Create(new FormFileAbstraction(request.File));
+            var file = TagLib.File.Create(new FormFileAbstraction(request.Song));
             var performers = request.Performers != null && request.Performers.Any(x => !string.IsNullOrEmpty(x))
                 ? request.Performers
                 : file.Tag.Performers.ToList();
@@ -49,7 +49,8 @@ namespace Musix4u_API.Controllers
                 Performers = string.Join(", ", performers),
                 Album = request.Album ?? file.Tag.Album,
                 Year = request.Year ?? (file.Tag.Year == 0 ? null : file.Tag.Year),
-                Duration = (long)file.Properties.Duration.TotalMilliseconds
+                Duration = (long)file.Properties.Duration.TotalMilliseconds,
+                IsPublic = request.IsPublic
             };
 
             if (request.Cover != null)
@@ -64,7 +65,7 @@ namespace Musix4u_API.Controllers
             {
                 entity.CoverUrl = await _storageService.UploadFile(
                     "covers",
-                    file.Tag.Pictures[0].Filename ?? $"{Path.GetFileNameWithoutExtension(request.File.FileName)}.{file.Tag.Pictures[0].MimeType.Split("/")[1]}",
+                    file.Tag.Pictures[0].Filename ?? $"{Path.GetFileNameWithoutExtension(request.Song.FileName)}.{file.Tag.Pictures[0].MimeType.Split("/")[1]}",
                     file.Tag.Pictures[0].Data.Data,
                     false);
             }
@@ -72,8 +73,8 @@ namespace Musix4u_API.Controllers
             //var fileName = $"{entity.Title} - {entity.Performers}{Path.GetExtension(request.File.FileName)}";
             entity.Url = await _storageService.UploadFile(
                 "tracks",
-                request.File.FileName,
-                request.File,
+                request.Song.FileName,
+                request.Song,
                 false);
 
 
@@ -81,7 +82,7 @@ namespace Musix4u_API.Controllers
 
             _dbContext.SaveChanges();
 
-            return Ok(entity);
+            return CreatedAtAction(nameof(Create), entity);
         }
 
         [HttpPut("{id}")]

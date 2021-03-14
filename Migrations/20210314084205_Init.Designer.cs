@@ -10,7 +10,7 @@ using Musix4u_API.Services;
 namespace Musix4u_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210309192853_Init")]
+    [Migration("20210314084205_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,6 +77,9 @@ namespace Musix4u_API.Migrations
 
                     b.Property<long>("Duration")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Performers")
                         .HasColumnType("nvarchar(max)");

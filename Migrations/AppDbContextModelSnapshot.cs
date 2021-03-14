@@ -76,6 +76,9 @@ namespace Musix4u_API.Migrations
                     b.Property<long>("Duration")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Performers")
                         .HasColumnType("nvarchar(max)");
 

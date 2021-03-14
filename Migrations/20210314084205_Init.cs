@@ -69,7 +69,8 @@ namespace Musix4u_API.Migrations
                     Album = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Year = table.Column<long>(type: "bigint", nullable: true),
                     Duration = table.Column<long>(type: "bigint", nullable: false),
-                    UploaderId = table.Column<long>(type: "bigint", nullable: true)
+                    UploaderId = table.Column<long>(type: "bigint", nullable: true),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

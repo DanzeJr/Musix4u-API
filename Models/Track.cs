@@ -24,5 +24,7 @@ namespace Musix4u_API.Models
         public long? UploaderId { get; set; }
 
         public User Uploader { get; set; }
+
+        public bool IsPublic { get; set; }
     }
 }

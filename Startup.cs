@@ -1,11 +1,17 @@
 using System.Collections.Generic;
+using System.Linq;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Musix4u_API.Infrastructures;
 using Musix4u_API.Services;
@@ -37,6 +43,43 @@ namespace Musix4u_API
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     //options.SerializerSettings.DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFK";
                 });
+
+            #region Firebase
+
+            var projectId = Configuration.GetSection("Firebase:ProjectId").Value;
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromJson(Configuration.GetSection("Firebase:Credential").Value),
+            });
+
+            #endregion
+
+            // Token Authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = $"https://securetoken.google.com/{projectId}";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = $"https://securetoken.google.com/{projectId}",
+                        ValidateAudience = true,
+                        ValidAudience = $"{projectId}",
+                        ValidateLifetime = true
+                    };
+                });
+
+            // Configure response for bad request
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = (context) =>
+                {
+                    var errors = context.ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).ToArray();
+
+                    return new BadRequestObjectResult(errors);
+                };
+            });
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration["Database"]));
 
@@ -93,6 +136,7 @@ namespace Musix4u_API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

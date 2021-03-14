@@ -6,7 +6,7 @@ namespace Musix4u_API.Models
 {
     public class CreateTrackRequest
     {
-        public IFormFile File { get; set; }
+        public IFormFile Song { get; set; }
 
         public IFormFile Cover { get; set; }
 
@@ -17,5 +17,7 @@ namespace Musix4u_API.Models
         public string Album { get; set; }
 
         public uint? Year { get; set; }
+
+        public bool IsPublic { get; set; } = false;
     }
 }
