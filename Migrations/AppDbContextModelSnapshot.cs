@@ -19,6 +19,28 @@ namespace Musix4u_API.Migrations
                 .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Musix4u_API.Models.FavoriteTrack", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("TrackId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FavoriteTrack");
+                });
+
             modelBuilder.Entity("Musix4u_API.Models.Playlist", b =>
                 {
                     b.Property<long>("Id")
@@ -56,6 +78,10 @@ namespace Musix4u_API.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.HasIndex("TrackId");
 
                     b.ToTable("PlaylistTrack");
                 });
@@ -122,10 +148,29 @@ namespace Musix4u_API.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("Musix4u_API.Models.FavoriteTrack", b =>
+                {
+                    b.HasOne("Musix4u_API.Models.Track", "Track")
+                        .WithMany("FavoriteTracks")
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Musix4u_API.Models.User", "User")
+                        .WithMany("FavoriteTracks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Track");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Musix4u_API.Models.Playlist", b =>
                 {
                     b.HasOne("Musix4u_API.Models.User", "Owner")
-                        .WithMany()
+                        .WithMany("Playlists")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -133,13 +178,53 @@ namespace Musix4u_API.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Musix4u_API.Models.PlaylistTrack", b =>
+                {
+                    b.HasOne("Musix4u_API.Models.Playlist", "Playlist")
+                        .WithMany("PlaylistTracks")
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Musix4u_API.Models.Track", "Track")
+                        .WithMany("PlaylistTracks")
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Playlist");
+
+                    b.Navigation("Track");
+                });
+
             modelBuilder.Entity("Musix4u_API.Models.Track", b =>
                 {
                     b.HasOne("Musix4u_API.Models.User", "Uploader")
-                        .WithMany()
+                        .WithMany("Tracks")
                         .HasForeignKey("UploaderId");
 
                     b.Navigation("Uploader");
+                });
+
+            modelBuilder.Entity("Musix4u_API.Models.Playlist", b =>
+                {
+                    b.Navigation("PlaylistTracks");
+                });
+
+            modelBuilder.Entity("Musix4u_API.Models.Track", b =>
+                {
+                    b.Navigation("FavoriteTracks");
+
+                    b.Navigation("PlaylistTracks");
+                });
+
+            modelBuilder.Entity("Musix4u_API.Models.User", b =>
+                {
+                    b.Navigation("FavoriteTracks");
+
+                    b.Navigation("Playlists");
+
+                    b.Navigation("Tracks");
                 });
 #pragma warning restore 612, 618
         }

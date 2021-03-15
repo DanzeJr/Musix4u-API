@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
 namespace Musix4u_API.Models
@@ -23,8 +24,12 @@ namespace Musix4u_API.Models
 
         public long? UploaderId { get; set; }
 
-        public User Uploader { get; set; }
+        public virtual User Uploader { get; set; }
 
         public bool IsPublic { get; set; }
+
+        public virtual List<PlaylistTrack> PlaylistTracks { get; set; }
+
+        public virtual List<FavoriteTrack> FavoriteTracks { get; set; }
     }
 }

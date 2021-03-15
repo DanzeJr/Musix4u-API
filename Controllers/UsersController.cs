@@ -88,7 +88,6 @@ namespace Musix4u_API.Controllers
                     Email = entity.Email,
                     EmailVerified = true,
                     Password = request.Password,
-                    PhotoUrl = "https://cdn2.iconfinder.com/data/icons/multimedia-part-1/32/headphones-man-512.png",
                     Disabled = false
                 };
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Musix4u_API.Models
 {
@@ -11,5 +12,11 @@ namespace Musix4u_API.Models
         public string Email { get; set; }
 
         public bool IsAdmin { get; set; }
+
+        public virtual List<Playlist> Playlists { get; set; }
+
+        public virtual List<Track> Tracks { get; set; }
+
+        public virtual List<FavoriteTrack> FavoriteTracks { get; set; }
     }
 }

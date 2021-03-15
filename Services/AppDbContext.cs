@@ -15,5 +15,7 @@ namespace Musix4u_API.Services
         public DbSet<PlaylistTrack> PlaylistTrack { get; set; }
 
         public DbSet<User> User { get; set; }
+
+        public DbSet<FavoriteTrack> FavoriteTrack { get; set; }
     }
 }

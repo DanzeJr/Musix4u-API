@@ -6,5 +6,6 @@ namespace Musix4u_API.Controllers
     [ApiController]
     public abstract class BaseApiController : ControllerBase
     {
+        public long? UserId => User.HasClaim(x => x.Type.Equals("userId")) ? long.Parse(User.FindFirst("userId").Value) : null;
     }
 }

@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Musix4u_API.Models;
@@ -9,6 +11,7 @@ using Musix4u_API.Services;
 
 namespace Musix4u_API.Controllers
 {
+    [Authorize]
     public class TracksController : BaseApiController
     {
         private readonly AppDbContext _dbContext;
@@ -21,9 +24,39 @@ namespace Musix4u_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Track>>> Get()
+        [Authorize]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<Track>>> Get([FromQuery] FilterTrackRequest request)
         {
-            var result = await _dbContext.Track.ToListAsync();
+            var token = Request.Headers["Authorization"];
+            var queryable = _dbContext.Track.AsQueryable();
+            List<Track> result;
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                if (request.Favorite == null && request.PlaylistId == null)
+                {
+                    queryable = queryable.Where(x => x.IsPublic || x.UploaderId == UserId);
+                }
+                else
+                {
+                    if (request.Favorite != null)
+                    {
+                        queryable = queryable.Where(x => x.FavoriteTracks.Any(f => f.UserId == UserId));
+                    }
+
+                    if (request.PlaylistId != null)
+                    {
+                        queryable = queryable.Where(x => x.PlaylistTracks.Any(p => p.PlaylistId == request.PlaylistId));
+                    }
+                }
+
+            }
+            else
+            {
+                queryable = queryable.Where(x => x.IsPublic);
+            }
+
+            result = await queryable.ToListAsync();
 
             return Ok(result);
         }
@@ -37,6 +70,7 @@ namespace Musix4u_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<List<Track>>> Create([FromForm] CreateTrackRequest request)
         {
             var file = TagLib.File.Create(new FormFileAbstraction(request.Song));
@@ -50,7 +84,8 @@ namespace Musix4u_API.Controllers
                 Album = request.Album ?? file.Tag.Album,
                 Year = request.Year ?? (file.Tag.Year == 0 ? null : file.Tag.Year),
                 Duration = (long)file.Properties.Duration.TotalMilliseconds,
-                IsPublic = request.IsPublic
+                IsPublic = request.IsPublic,
+                UploaderId = UserId
             };
 
             if (request.Cover != null)

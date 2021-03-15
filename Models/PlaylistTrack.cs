@@ -8,7 +8,11 @@ namespace Musix4u_API.Models
 
         public long PlaylistId { get; set; }
 
+        public virtual Playlist Playlist { get; set; }
+
         public long TrackId { get; set; }
+
+        public virtual Track Track { get; set; }
 
     }
 }
