@@ -117,6 +117,7 @@ namespace Musix4u_API.Controllers
             return CreatedAtAction(nameof(Create), entity);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(long id, [FromBody] UpdateUserRequest request)
         {

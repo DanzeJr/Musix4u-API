@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Musix4u_API.Models;
@@ -86,21 +87,20 @@ namespace Musix4u_API.Controllers
             return CreatedAtAction(nameof(Create), entity);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(UpdatePlaylistRequest request)
+        public async Task<ActionResult> Update(long id, [FromBody]UpdatePlaylistRequest request)
         {
-            var entity = await _dbContext.Playlist.FirstOrDefaultAsync(x => x.Name == request.Name);
-
-            if (entity != null)
-            {
-                return Conflict();
-            }
-
-            entity = await _dbContext.Playlist.FindAsync(request.Id);
+            var entity = await _dbContext.Playlist.FindAsync(id);
 
             if (entity == null)
             {
                 return NotFound();
+            }
+
+            if (entity.OwnerId != UserId)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "Permission denied");
             }
 
             entity.Name = request.Name ?? entity.Name;
@@ -113,6 +113,7 @@ namespace Musix4u_API.Controllers
             return Ok(entity);
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(long id)
         {
@@ -121,6 +122,11 @@ namespace Musix4u_API.Controllers
             if (entity == null)
             {
                 return NotFound();
+            }
+
+            if (entity.OwnerId != UserId)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "Permission denied");
             }
 
             entity = _dbContext.Playlist.Remove(entity).Entity;
