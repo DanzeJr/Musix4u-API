@@ -36,9 +36,11 @@ namespace Musix4u_API.Controllers
                     }
                     else if (request.Owned == false)
                     {
-                        queryable = queryable.Where(x => x.OwnerId != UserId);
+                        queryable = queryable.Where(x => x.IsPublic && x.OwnerId != UserId);
+                    } else
+                    {
+                        queryable = queryable.Where(x => x.IsPublic);
                     }
-                    queryable = queryable.Where(x => x.IsPublic);
                 }
                 else
                 {
