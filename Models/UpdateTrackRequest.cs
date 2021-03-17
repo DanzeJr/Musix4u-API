@@ -15,10 +15,12 @@ namespace Musix4u_API.Models
 
         public string Title { get; set; }
 
-        public List<string> Performers { get; set; }
+        public string Performers { get; set; }
 
         public string Album { get; set; }
 
         public uint? Year { get; set; }
+
+        public bool? IsPublic { get; set; }
     }
 }

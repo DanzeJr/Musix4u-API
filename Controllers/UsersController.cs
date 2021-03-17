@@ -118,34 +118,34 @@ namespace Musix4u_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(UpdateUserRequest request)
+        public async Task<ActionResult> Update(long id, [FromBody] UpdateUserRequest request)
         {
-            var entity = await _dbContext.User.FirstOrDefaultAsync(x => x.Email == request.Email);
+            var entity = await _dbContext.User.FindAsync(id);
 
-            if (entity != null)
+            if (entity == null || entity.Id != UserId)
             {
-                return Conflict();
+                return NotFound("User not found");
             }
 
-            entity = await _dbContext.User.FindAsync(request.Id);
-
-            if (entity == null)
-            {
-                return NotFound();
-            }
+            var firebaseUser = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(entity.Email);
 
             entity.Name = request.Name ?? entity.Name;
-            entity.Email = request.Email ?? entity.Email;
-            entity.IsAdmin = request.IsAdmin ?? entity.IsAdmin;
 
             entity = _dbContext.User.Update(entity).Entity;
 
             _dbContext.SaveChanges();
 
+            await FirebaseAuth.DefaultInstance.UpdateUserAsync(new UserRecordArgs
+            {
+                Uid = firebaseUser.Uid,
+                DisplayName = entity.Name
+            });
+
             return Ok(entity);
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> Delete(long id)
         {
             var entity = await _dbContext.User.FindAsync(id);
