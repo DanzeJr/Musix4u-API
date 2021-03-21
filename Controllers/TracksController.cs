@@ -40,7 +40,7 @@ namespace Musix4u_API.Controllers
                 {
                     if (!string.IsNullOrEmpty(request.Title))
                     {
-                        queryable = queryable.Where(x => EF.Functions.Like(x.Title, $"{request.Title}%"));
+                        queryable = queryable.Where(x => EF.Functions.Like(x.Title, $"%{request.Title}%"));
                     }
 
                     if (request.Favorite != null)
@@ -73,7 +73,7 @@ namespace Musix4u_API.Controllers
             {
                 if (!string.IsNullOrEmpty(request.Title))
                 {
-                    queryable = queryable.Where(x => EF.Functions.Like(x.Title, $"{request.Title}%"));
+                    queryable = queryable.Where(x => EF.Functions.Like(x.Title, $"%{request.Title}%"));
                 }
 
                 if (request.PlaylistId != null)
