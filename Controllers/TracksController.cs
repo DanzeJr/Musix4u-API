@@ -28,7 +28,7 @@ namespace Musix4u_API.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<Track>>> Get([FromQuery] FilterTrackRequest request)
         {
-            var queryable = _dbContext.Track.AsQueryable();
+            var queryable = _dbContext.Track.Include(x => x.Uploader).AsQueryable();
             if (User.Identity?.IsAuthenticated == true)
             {
                 queryable = queryable.Include(x => x.FavoriteTracks);

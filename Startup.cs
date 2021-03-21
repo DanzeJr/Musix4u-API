@@ -5,6 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -69,6 +70,8 @@ namespace Musix4u_API
                         ValidateLifetime = true
                     };
                 });
+
+            services.Configure<FormOptions>(x => x.MultipartBodyLengthLimit = 30_000_000);
 
             // Configure response for bad request
             services.Configure<ApiBehaviorOptions>(options =>
